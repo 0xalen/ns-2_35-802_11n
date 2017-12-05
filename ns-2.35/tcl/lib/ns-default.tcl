@@ -106,6 +106,73 @@ Queue/DropTail set mean_pktsize_ 500
 
 Queue/DropTail/PriQueue set Prefer_Routing_Protocols    1
 
+#opower+
+               	Queue/DTail set drop_front_ false
+               	Queue/DTail set summarystats_ false
+               	Queue/DTail set queue_in_bytes_ false
+               	Queue/DTail set mean_pktsize_ 500
+	       	Queue/DTail/PriQ set Prefer_Routing_Protocols    1
+               	Queue/DTail/PriQ set Max_Levels   4 
+               	Queue/DTail/PriQ set Levels    4
+
+		
+		Mac/802_11e set SlotTime_      0.000020    ;# 20us
+		Mac/802_11e set SIFS_          0.000010    ;# 10us
+	        Mac/802_11e set PreambleLength_        144 ;# 144 bit
+		Mac/802_11e set PLCPHeaderLength_      48  ;# 48 bits
+		Mac/802_11e set PLCPDataRate_  1.0e6       ;# 1Mbps	       
+
+		Mac/802_11e set RTSThreshold_  3000        ;# bytes
+		Mac/802_11e set ShortRetryLimit_       7   ;# retransmittions
+		Mac/802_11e set LongRetryLimit_        4   ;# retransmissions
+		
+#+opower
+
+# 802_11n (Tomky)
+
+               	Queue/Aggr set drop_front_ false
+               	Queue/Aggr set summarystats_ false
+               	Queue/Aggr set queue_in_bytes_ false
+               	Queue/Aggr set mean_pktsize_ 500
+
+               	Queue/Aggr set max_aggr_size_ 4096         ;# Max Aggregation Size
+		Queue/Aggr set limit_ 70
+                
+	       	Queue/Aggr/APriQ set Prefer_Routing_Protocols    1
+               	Queue/Aggr/APriQ set Max_Levels   4 
+               	Queue/Aggr/APriQ set Levels    4
+		Queue/Aggr set limit_ 70
+               	
+		
+		Mac/802_11n set SlotTime_      0.000020    ;# 20us
+		Mac/802_11n set SIFS_          0.000010    ;# 10us
+	        Mac/802_11n set PreambleLength_        144 ;# 144 bit
+		Mac/802_11n set PLCPHeaderLength_      48  ;# 48 bits
+		Mac/802_11n set PLCPDataRate_  1.0e6       ;# 1Mbps	       
+
+		Mac/802_11n set RTSThreshold_  50000        ;# bytes
+ 		Mac/802_11n set ShortRetryLimit_       7   ;# retransmittions // Jelly
+		Mac/802_11n set LongRetryLimit_        4   ;# retransmissions // Jelly
+		
+		Mac/802_11n set BlockACKType_          0   ;# 0 for Non, 1 for Normal, 2 for Compressed
+
+		Mac/802_11n set bandwidth_             96Mb;# bandwidth (MIMO)
+		Mac/802_11n set basicRate_             96Mb;
+		Mac/802_11n set dataRate_              96Mb;
+
+# 802_11n (Tomky)
+
+# special cmu implemented priority queue used by DSR
+CMUPriQueue set qlen_logthresh_ 10
+CMUPriQueue set fw_logthresh_ 25
+CMUPriQueue set debug_ false
+
+#notel's diffserv module
+Queue/dsRED set numQueues_ 4
+Queue/dsRED set ecn_ 0
+
+Queue/XCP set spread_bytes_ 0
+
 # special cmu implemented priority queue used by DSR
 CMUPriQueue set qlen_logthresh_ 10
 CMUPriQueue set fw_logthresh_ 25
