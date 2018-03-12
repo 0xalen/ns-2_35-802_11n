@@ -1,10 +1,17 @@
 
+== WORK IN PROGRESS ==
+
+This isn't functional yet, it is a work in progress.
+
 == FORK NOTES ==
 
 This is a fork of Network Simulator 2. In accordance with GPLv2, it's also distributed under the same lincese. A copy of such license can be found in this same directoy.
 This fork is used in the context of a research project in the UNPA (National University of the Austral Patagonia), Rio gallegos, Argentina.
 
 The modifications allow the direct installation of (version 2.35) without additional modifications to the source code. Still, the user must install the proper dependencies.
+
+The components that allowed compatibility with IEEE 802.11n were developed by https://github.com/tomky/ns2-11n.git
+
 
 == NS2 README ==
 
