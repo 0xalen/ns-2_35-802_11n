@@ -89,7 +89,8 @@ Propagation::Pr(PacketStamp *, PacketStamp *, WirelessPhy *)
 }
 
 double
-Propagation::getDist(double , double , double , double , double , double , double , double )
+Propagation::getDist(double Pr, double Pt, double Gt, double Gr, double hr,
+		     double ht, double L, double lambda)
 {
 	fprintf(stderr,
 		"Propagtion model %s not implemented for generic use\n", name);

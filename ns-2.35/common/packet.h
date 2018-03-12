@@ -54,6 +54,8 @@
 #define HDR_ARP(p)      (hdr_arp::access(p))
 #define HDR_MAC(p)      (hdr_mac::access(p))
 #define HDR_MAC802_11(p) ((hdr_mac802_11 *)hdr_mac::access(p))
+#define HDR_MAC802_11E(p) ((hdr_mac802_11e *)hdr_mac::access(p)) //opower e
+#define HDR_MAC802_11N(p) ((hdr_mac802_11n *)hdr_mac::access(p)) //Tomky  n
 #define HDR_MAC_TDMA(p) ((hdr_mac_tdma *)hdr_mac::access(p))
 #define HDR_SMAC(p)     ((hdr_smac *)hdr_mac::access(p))
 #define HDR_LL(p)       (hdr_ll::access(p))
@@ -72,6 +74,106 @@
 
 /* --------------------------------------------------------------------*/
 
+enum packet_t {
+	PT_TCP,
+	PT_UDP,
+	PT_CBR,
+	PT_AUDIO,
+	PT_VIDEO,
+	PT_ACK,
+	PT_START,
+	PT_STOP,
+	PT_PRUNE,
+	PT_GRAFT,
+	PT_GRAFTACK,
+	PT_JOIN,
+	PT_ASSERT,
+	PT_MESSAGE,
+	PT_RTCP,
+	PT_RTP,
+	PT_RTPROTO_DV,
+	PT_CtrMcast_Encap,
+	PT_CtrMcast_Decap,
+	PT_SRM,
+	/* simple signalling messages */
+	PT_REQUEST,	
+	PT_ACCEPT,	
+	PT_CONFIRM,	
+	PT_TEARDOWN,	
+	PT_LIVE,	// packet from live network
+	PT_REJECT,
+
+	PT_TELNET,	// not needed: telnet use TCP
+	PT_FTP,
+	PT_PARETO,
+	PT_EXP,
+	PT_INVAL,
+	PT_HTTP,
+
+	/* new encapsulator */
+	PT_ENCAPSULATED,
+	PT_MFTP,
+
+	/* CMU/Monarch's extnsions */
+	PT_ARP,
+	PT_MAC,
+	PT_TORA,
+	PT_DSR,
+	PT_AODV,
+	PT_IMEP,
+
+	// RAP packets
+	PT_RAP_DATA,
+	PT_RAP_ACK,
+
+	PT_TFRC,
+	PT_TFRC_ACK,
+	PT_PING,
+
+	// Diffusion packets - Chalermek
+	PT_DIFF,
+
+	// LinkState routing update packets
+	PT_RTPROTO_LS,
+
+	// MPLS LDP header
+	PT_LDP,
+
+	// GAF packet
+        PT_GAF,  
+
+	// ReadAudio traffic
+	PT_REALAUDIO,
+
+	// Pushback Messages
+	PT_PUSHBACK,
+
+#ifdef HAVE_STL
+	// Pragmatic General Multicast
+	PT_PGM,
+#endif //STL
+
+	// LMS packets
+	PT_LMS,
+	PT_LMS_SETUP,
+
+	PT_SCTP,
+	PT_SCTP_APP1,
+
+	// SMAC packet
+	PT_SMAC,
+
+	// XCP packet
+	PT_XCP,
+	
+	// HDLC packet
+	PT_HDLC,
+
+	// insert new packet types here
+	PT_AGGR,
+	
+	PT_NTYPE // This MUST be the LAST one
+}
 /*
  * modified ns-2.33, adding support for dynamic libraries
  * 
@@ -497,7 +599,12 @@ protected:
 	int	ref_count_;	// free the pkt until count to 0
 public:
 	Packet* next_;		// for queues and the free list
+	Packet* aggr_;          // for aggregation // Tomky
+	
 	static int hdrlen_;
+	
+	static int new_packet;
+	static int old_packet;
 
 	Packet() : bits_(0), data_(0), ref_count_(0), next_(0) { }
 	inline unsigned char* bits() { return (bits_); }
@@ -610,7 +717,15 @@ struct hdr_cmn {
 	// source routing 
         char src_rt_valid;
 	double ts_arr_; // Required by Marker of JOBS 
-
+  //opower+
+  int frametype_;            // frame type for MPEG video transmission
+  int frameseq_;              // frame sequence for MPEG video transmission
+  double sendtime_;  // send time (Henry)
+  unsigned long int frame_pkt_id_;
+  double fps_;
+  double receiver_buffer_;
+      
+  //+opower
 	//Monarch extn begins
 	nsaddr_t prev_hop_;     // IP addr of forwarding hop
 	nsaddr_t next_hop_;	// next hop for this packet
@@ -642,7 +757,23 @@ struct hdr_cmn {
 	// tx time for this packet in sec
 	double txtime_;
 	inline double& txtime() { return(txtime_); }
-
+	double inqueue_time_; //opower add
+	double o_inqueue_time_; //opower add
+	double estimated_time_; //opower add
+	double realistic_time_; //opower add 
+	double send_time_; //opower add
+	int o_size; //opower add
+	inline double& inqueue_time() {return inqueue_time_; } //opower add
+	inline double& original_inqueue_time() {return o_inqueue_time_; } //opower add
+	inline double& estimated_time() {return estimated_time_; } //opower add
+	inline double& realistic_time() {return realistic_time_; } //opower add
+	inline double& sendtime() { return (sendtime_); }//opower add in app
+	inline double& send_time() { return (send_time_); }//opower add in mac
+	inline int& original_size() {return o_size; } //opower add
+	inline double& fps() {return fps_; } //opower add
+	inline double& receiver_buffer() {return receiver_buffer_; } //opower add
+	inline int& frametype() {return frametype_; } //opower add
+	
 	static int offset_;	// offset for this header
 	inline static int& offset() { return offset_; }
 	inline static hdr_cmn* access(const Packet* p) {
@@ -701,8 +832,10 @@ inline Packet* Packet::alloc()
 		assert(p->data_ == 0);
 		p->uid_ = 0;
 		p->time_ = 0;
+		old_packet --;
 	} else {
 		p = new Packet;
+		new_packet ++;
 		p->bits_ = new unsigned char[hdrlen_];
 		if (p == 0 || p->bits_ == 0)
 			abort();
@@ -715,6 +848,8 @@ inline Packet* Packet::alloc()
 	/* setting all direction of pkts to be downward as default; 
 	   until channel changes it to +1 (upward) */
 	p->next_ = 0;
+	p->aggr_ = 0;
+//	printf("New packet: %d, Old packet: %d\n",new_packet,old_packet);
 	return (p);
 }
 
@@ -774,9 +909,29 @@ inline void Packet::free(Packet* p)
 			 */
 			assert(p->uid_ <= 0);
 			// Delete user data because we won't need it any more.
-			if (p->data_ != 0) {
+/*			if (p->data_ != 0) {
 				delete p->data_;
 				p->data_ = 0;
+			}*/
+			// Tomky : AG
+			Packet *pp = p->aggr_;
+//			printf("Packet Free: ");
+			while (p) {
+//			  printf("!");
+			  pp = p->aggr_;
+			  
+			  if (p->data_ != 0) {
+			    delete p->data_;
+			    p->data_ = 0;
+                          }
+			  
+			  p->aggr_ = 0;
+  			  init(p);
+  			  p->next_ = free_;
+  			  free_ = p;
+  			  p->fflag_ = FALSE;
+  			  p = pp;
+                          old_packet ++;
 			}
 			init(p);
 			p->next_ = free_;
@@ -786,6 +941,7 @@ inline void Packet::free(Packet* p)
 			--p->ref_count_;
 		}
 	}
+//	printf("New packet: %d, Old packet: %d\n",new_packet,old_packet);
 }
 
 inline Packet* Packet::copy() const

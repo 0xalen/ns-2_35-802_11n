@@ -107,6 +107,14 @@ class Agent : public Connector {
 	void set_pkttype(packet_t pkttype) { type_ = pkttype; }
 	inline packet_t get_pkttype() { return type_; }
 
+	//opower+
+	inline void set_frametype(int type) { frametype_ = type; } // (Henry)
+	inline void set_prio(int prio) { prio_ = prio; }  // (Henry)
+ 	inline void set_fps(double fps) { fps_ = fps; } // opower add
+	inline void set_receiver_buffer(double receiver_buffer) { receiver_buffer_ = receiver_buffer; } // opower add  
+	//+opower
+
+
  protected:
 	int command(int argc, const char*const* argv);
 	virtual void delay_bind_init_all();
@@ -127,6 +135,12 @@ class Agent : public Connector {
 	int flags_;			// for experiments (see ip.h)
 	int defttl_;			// default ttl for outgoing pkts
 
+
+	//opower+
+	int frametype_;                       // frame type for MPEG video transmission
+	double fps_;
+	double receiver_buffer_;
+	//+opower
 #ifdef notdef
 	int seqno_;		/* current seqno */
 	int class_;		/* class to place in packet header */
@@ -154,6 +168,8 @@ class Agent : public Connector {
 
  private:
 	void flushAVar(TracedVar *v);
+	
+friend class Aggr;
 };
 
 #endif

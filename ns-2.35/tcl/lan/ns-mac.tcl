@@ -62,6 +62,24 @@ if [TclObject is-class Mac/802_11] {
         Mac/802_11 set dataRate_ 1Mb   ;# both control and data pkts
 }
 
+if [TclObject is-class Mac/802_11e] {
+	Mac/802_11e set delay_ 64us
+	Mac/802_11e set ifs_ 16us
+	Mac/802_11e set slotTime_ 16us
+	Mac/802_11e set cwmin_ 16
+	Mac/802_11e set cwmax_ 1024
+	Mac/802_11e set rtxLimit_ 16
+	Mac/802_11e set bssId_ -1
+	Mac/802_11e set sifs_ 8us
+	Mac/802_11e set pifs_ 12us
+	Mac/802_11e set difs_ 16us
+	Mac/802_11e set rtxAckLimit_ 1
+	Mac/802_11e set rtxRtsLimit_ 3
+       Mac/802_11e set basicRate_ 1Mb  ;# set this to 0 if want to use bandwidth_ for 
+       Mac/802_11e set dataRate_ 1Mb   ;# both control and data pkts
+	Mac/802_11e set cfb_ 0 ;# disables CFB
+}
+
 # IEEE 802.14 MAC settings
 if [TclObject is-class Mac/Mcns] {
 	Mac/Mcns set bandwidth_ 10Mb

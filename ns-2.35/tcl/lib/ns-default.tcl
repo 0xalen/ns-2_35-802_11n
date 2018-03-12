@@ -173,15 +173,6 @@ Queue/dsRED set ecn_ 0
 
 Queue/XCP set spread_bytes_ 0
 
-# special cmu implemented priority queue used by DSR
-CMUPriQueue set qlen_logthresh_ 10
-CMUPriQueue set fw_logthresh_ 25
-CMUPriQueue set debug_ false
-
-#notel's diffserv module
-Queue/dsRED set numQueues_ 4
-Queue/dsRED set ecn_ 0
-
 # XXX Temporary fix XXX
 # support only xcp flows; set to 1 when supporting both tcp and xcp flows; temporary fix for allocating link BW between xcp and tcp queues until dynamic queue weights come into effect. This fix should then go away
 Queue/XCP set tcp_xcp_on_ 0  ;
@@ -848,6 +839,17 @@ Phy/WirelessPhyExt set RXThresh_ 0 ;# not used by WirelessPhyExt, but available 
 
 Phy/WiredPhy set bandwidth_ 10e6
 
+# Add by Tomky : MIMO
+Phy/WirelessPhy/MIMO set CPThresh_ 10.0
+Phy/WirelessPhy/MIMO set CSThresh_ 1.559e-11
+Phy/WirelessPhy/MIMO set RXThresh_ 3.652e-10
+Phy/WirelessPhy/MIMO set bandwidth_ 96e6
+Phy/WirelessPhy/MIMO set Pt_ 0.28183815
+Phy/WirelessPhy/MIMO set freq_ 914e+6
+Phy/WirelessPhy/MIMO set L_ 1.0
+Phy/WirelessPhy/MIMO set Noise_ 5.7e-11
+# End of Tomky
+
 # Shadowing propagation model
 Propagation/Shadowing set pathlossExp_ 2.0
 Propagation/Shadowing set std_db_ 4.0
@@ -894,6 +896,10 @@ Agent set class_ 0
 ##Agent set seqno_ 0 now is gone
 ##Agent set class_ 0 now is gone
 
+#opower+
+Tracefile set debug_ 0
+
+
 Agent/Ping set packetSize_ 64
 
 Agent/UDP set packetSize_ 1000
@@ -906,6 +912,7 @@ Agent/SCTP set associationMaxRetrans_ 10;# 10 attempts
 Agent/SCTP set pathMaxRetrans_ 5        ;# 5 attempts (per destination)
 Agent/SCTP set changePrimaryThresh_ -1  ;# infinite (ie, never change primary
 Agent/SCTP set maxInitRetransmits_ 8    ;# 8 attempts
+Agent/SCTP set oneHeartbeatTimer_ 1     ;# single heartbeat timer for all dests
 Agent/SCTP set heartbeatInterval_ 30    ;# 30 secs
 Agent/SCTP set mtu_ 1500                ;# MTU of ethernet (most common)
 Agent/SCTP set initialRwnd_ 65536       ;# default inital receiver window
@@ -1023,6 +1030,8 @@ Agent/TCP set maxrto_ 60 ; 		# default changed on 2007/03/28
 Agent/TCP set minrto_ 0.2 ;		# Default changed to 200ms on 
 					#  2004/10/14, to match values
 					#  used by many implementations.
+					# Default set to 1 on 2001/05/14.
+					# Set to "0" to give old behavior.
 Agent/TCP set srtt_init_ 0
 Agent/TCP set rttvar_init_ 12
 Agent/TCP set rtxcur_init_ 3.0 ;	# Default changed on 2006/01/21		
@@ -1102,6 +1111,8 @@ Agent/TCP/Fack set ss-div4_ false
 Agent/TCP/Fack set rampdown_ false
 
 Agent/TCP/Reno/XCP set timestamps_ true
+Agent/TCP/Reno/XCP set xcp_sparse_ false
+Agent/TCP/Reno/XCP set tcpTick_	0.01
 Agent/TCP/FullTcp/Newreno/XCP set timestamps_ true
 
 Agent/TCP set eln_ 0
@@ -1505,6 +1516,12 @@ Agent/LMS/Receiver set packetSize_ $lsize
 
 # Following defaults defined for TCP Quick Start
 # http://www.icir.org/floyd/quickstart.html
+
+Agent/TCP/Newreno/QS set rbp_scale_ 0.75
+Agent/TCP/Newreno/QS set rbp_segs_actually_paced_ 0
+Agent/TCP/Newreno/QS set rbp_inter_pace_delay_ 0
+Agent/TCP/Newreno/QS set rate_request_ 128
+
 Agent/QSAgent set qs_enabled_ 1
 Agent/QSAgent set old_classifier_ 0
 Agent/QSAgent set state_delay_ 0.2 ;	# Changed from 0.25 to 0.2, 2/25/05.
@@ -1514,6 +1531,15 @@ Agent/QSAgent set max_rate_ 256
 Agent/QSAgent set mss_ [Agent/TCP set packetSize_]
 Agent/QSAgent set rate_function_ 2
 Agent/QSAgent set algorithm_ 3	; 	# Changed from 2 to 3, 2/25/05.
+
+Agent/TCPSink/QS set sport_        0
+Agent/TCPSink/QS set dport_        0         
+
+Agent/TCPSink/QS set packetSize_ 40
+Agent/TCPSink/QS set maxSackBlocks_ 3
+Agent/TCPSink/QS set ts_echo_bugfix_ false
+Agent/TCPSink/QS set generateDSacks_ false
+Agent/TCPSink/QS set RFC2581_immediate_ack_ true
 
 Queue set util_weight_ 0.8
 Queue set util_check_intv_ 0.2 ;	# Changed from 1 to 0.2, 2/25/05.

@@ -172,7 +172,15 @@ Channel::sendUp(Packet* p, Phy *tifp)
 		 * event.
 		 *
 		 */
-		newp = p->copy();
+		newp = p->copy(); 
+		// Tomky: AG 
+		if ( newp->aggr_ ) {
+		  Packet *pp = newp;
+		  while (pp->aggr_){
+		    pp->aggr_ = pp->aggr_->copy();
+		    pp = pp->aggr_;
+		  }
+		}
 		propdelay = get_pdelay(tnode, rnode);
 		
 		/*
@@ -184,6 +192,17 @@ Channel::sendUp(Packet* p, Phy *tifp)
 		s.schedule(rifp, newp, propdelay);
 	}
 
+	// Tomky : AG
+/*        if (p && p->aggr_){
+            Packet* pp = p->aggr_;
+            Packet* ppp = pp;
+            while (pp){
+                ppp = ppp->aggr_;
+                pp->aggr_ = 0;
+                Packet::free(pp);
+                pp = ppp;
+            }
+        }*/
 	Packet::free(p);
 }
 
@@ -345,7 +364,15 @@ WirelessChannel::sendUp(Packet* p, Phy *tifp)
 						         outlist);
 	    for (i=0; i < out_index; i ++) {
 		
-		  newp = p->copy();
+		  newp = p->copy(); 
+                  //Tomky : AG 
+		  if ( newp->aggr_ ) {
+                    Packet *pp = newp;
+                    while (pp->aggr_){
+                       pp->aggr_ = pp->aggr_->copy();
+                       pp = pp->aggr_;
+                    }
+                  } 
 		  rnode = outlist[i];
 		  propdelay = get_pdelay(tnode, rnode);
 
@@ -376,7 +403,15 @@ WirelessChannel::sendUp(Packet* p, Phy *tifp)
 			 if(rnode == tnode)
 				 continue;
 			 
-			 newp = p->copy();
+			 newp = p->copy(); 
+			 //Tomky : AG 
+			 if ( newp->aggr_ ) {
+			   Packet *pp = newp;
+			   while (pp->aggr_){
+			     pp->aggr_ = pp->aggr_->copy();
+			     pp = pp->aggr_;
+                           }
+                         }
 			 
 			 propdelay = get_pdelay(tnode, rnode);
 			 
@@ -387,6 +422,20 @@ WirelessChannel::sendUp(Packet* p, Phy *tifp)
 		 }
 		 delete [] affectedNodes;
 	 }
+
+	 // Tomky : AG
+	 /*
+	 if (p && p->aggr_){
+             Packet* pp = p->aggr_;
+             Packet* ppp = pp;
+             while (pp){
+                ppp = ppp->aggr_;
+                pp->aggr_ = 0;
+                Packet::free(pp);
+                pp = ppp;
+            }
+        }*/
+                                                                                                       
 	 Packet::free(p);
 }
 

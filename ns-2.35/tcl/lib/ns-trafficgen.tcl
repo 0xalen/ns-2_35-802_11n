@@ -274,6 +274,7 @@ TrafficGen/ManyTCP instproc init_network {} {
 	set bottle_r_ $opts_(bottle_link_r)
     } else {
 	$ns_ rtproto Manual
+	$ns_ set-address-format expanded
 	set bottle_l_ [$ns_ node]
 	set bottle_r_ [$ns_ node]
     }

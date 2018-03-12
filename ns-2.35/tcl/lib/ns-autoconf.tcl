@@ -32,17 +32,17 @@ proc checkout_executable {exe_var best alternate text} {
 #
 # Keep track of where the good perl is.
 #
-checkout_executable PERL "/usr/bin/perl" perl "\
+checkout_executable PERL "@PERL@" perl "\
 	When configured, ns found the right version of perl in\
-	/usr/bin/perl
+	@PERL@
 	but it doesn't seem to be there anymore, so\
 	ns will fall back on running the first perl in your path.\
 	The wrong version of perl may break the test suites.\
 	Reconfigure and rebuild ns if this is a problem.\
 "
-checkout_executable TCLSH "/home/tomky/ns-allinone-2.29/bin/tclsh8.4" tclsh "\
+checkout_executable TCLSH "@V_TCLSH@" tclsh "\
 	When configured, ns found the right version of tclsh in\
-	/home/tomky/ns-allinone-2.29/bin/tclsh8.4
+	@V_TCLSH@
 	but it doesn't seem to be there anymore, so\
 	ns will fall back on running the first tclsh in your path.\
 	The wrong version of tclsh may break the test suites.\

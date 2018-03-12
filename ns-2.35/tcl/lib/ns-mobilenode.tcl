@@ -452,6 +452,16 @@ Node/MobileNode instproc add-interface { channel pmodel lltype mactype qtype qle
 	#
 	$ifq target $mac
 	$ifq set limit_ $qlen
+	#opower+
+	if {$qtype == "Queue/DTail/PriQ" } {
+		priority ifq
+        }
+	#+opower
+	#Tomky
+	if {$qtype == "Queue/Aggr/APriQ" } {
+                priority ifq
+        }
+	#Tomky
 	if {$imepflag != ""} {
 		set drpT [$self mobility-trace Drop "IFQ"]
 	} else {
@@ -499,6 +509,20 @@ Node/MobileNode instproc add-interface { channel pmodel lltype mactype qtype qle
     if {$mactype == "Mac/802_11"} {
 		$mac nodes [$god_ num_nodes]
 	}
+    if {$mactype == "Mac/802_11n"} {
+		$mac nodes [$god_ num_nodes]
+	}
+    if {$mactype == "Mac/802_11e"} {
+	        $mac nodes [$god_ num_nodes]
+	}
+    if {$mactype == "Mac/802_11n"} {
+		$mac nodes [$god_ num_nodes]
+	}
+	if {$mactype == "Mac/802_11e"} {
+	        $mac nodes [$god_ num_nodes]
+	}
+	                        
+	#+opower
 	#
 	# Network Interface
 	#
@@ -649,6 +673,50 @@ Node/MobileNode instproc add-interface { channel pmodel lltype mactype qtype qle
 
 	$self addif $netif
 }
+
+
+#opower+
+#set code rate
+Node/MobileNode instproc setCodeRate { val val2 } {
+        $self instvar netif_  mac_
+        $netif_(0) setPhyCodeRate $val $val2
+        $mac_(0) setMacCodeRate $val $val2
+}
+#opower+
+#Add by hsuan : RD probability
+Node/MobileNode instproc MacRDRight { val val2} {
+        $self instvar mac_
+        $mac_(0) MacRDRight $val $val2
+}
+
+# Add by Tomky : RD
+
+Node/MobileNode instproc RDRight { val } {
+        $self instvar mac_
+        $mac_(0) RDRight $val
+}
+
+Node/MobileNode instproc RDTimes { val } {
+	$self instvar mac_
+	$mac_(0) RDTimes $val
+}
+
+
+# Add by Tomky : MIMO
+#set number of antenna
+Node/MobileNode instproc NumAntenna { val } {
+        $self instvar netif_  mac_
+        $netif_(0) PhyNumAntenna $val
+        $mac_(0) MacNumAntenna $val
+}
+
+Node/MobileNode instproc MIMOSystem { val } {
+        $self instvar netif_  mac_
+        $netif_(0) PhyMIMOSystem $val
+        $mac_(0) MacMIMOSystem $val
+}
+
+
 
 # set transmission power
 Node/MobileNode instproc setPt { val } {

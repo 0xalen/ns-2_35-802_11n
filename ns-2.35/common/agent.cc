@@ -66,13 +66,21 @@ public:
 } class_agent;
 
 int Agent::uidcnt_;		/* running unique id */
-
+/*
 Agent::Agent(packet_t pkttype) : 
 	size_(0), type_(pkttype), 
 	channel_(0), traceName_(NULL),
 	oldValueList_(NULL), app_(0), et_(0)
 {
+}*/
+//opower e
+Agent::Agent(packet_t pkttype) : 
+	size_(0), type_(pkttype),  frametype_(0), fps_(0),receiver_buffer_(0.0), 
+	channel_(0), traceName_(NULL),
+	oldValueList_(NULL), app_(0), et_(0)
+{
 }
+//e opower
 
 void
 Agent::delay_bind_init_all()
@@ -464,6 +472,12 @@ Agent::initpkt(Packet* p) const
 	ch->direction() = hdr_cmn::NONE;
 
 	ch->error() = 0;	/* pkt not corrupt to start with */
+	//opower+
+	ch->frametype_= frametype_;
+	ch->fps_=fps_;
+	ch->receiver_buffer_=receiver_buffer_;
+       //+opower
+
 
 	hdr_ip* iph = hdr_ip::access(p);
 	iph->saddr() = here_.addr_;

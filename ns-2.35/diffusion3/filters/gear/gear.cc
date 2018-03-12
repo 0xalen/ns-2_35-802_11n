@@ -1167,6 +1167,7 @@ int32_t GeoRoutingFilter::findNextHop(GeoHeader *geo_header, bool greedy)
   current_distance = Distance(geo_longitude_, geo_latitude_,
 			      destination.longitude_, destination.latitude_);
 
+  min_distance = MAX_INT;
   min_learned_cost = MAX_INT;
   num_neighbors = 0;
 

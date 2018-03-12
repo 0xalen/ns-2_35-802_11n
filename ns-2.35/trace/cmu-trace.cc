@@ -1171,6 +1171,7 @@ void
 CMUTrace::nam_format(Packet *p, int offset)
 {
 	Node* srcnode = 0 ;
+	Node* dstnode = 0 ;
 	Node* nextnode = 0 ;
         struct hdr_cmn *ch = HDR_CMN(p);
 	struct hdr_ip *ih = HDR_IP(p);
@@ -1218,6 +1219,16 @@ CMUTrace::nam_format(Packet *p, int offset)
         if (nextnode) next_hop = nextnode->nodeid(); 
 
 	srcnode = Node::get_node_by_address(src_);
+	dstnode = Node::get_node_by_address(ch->next_hop_);
+
+	double distance = 0;
+
+        if ((srcnode) && (dstnode)) {
+	   MobileNode* tmnode = (MobileNode*)srcnode;
+	   MobileNode* rmnode = (MobileNode*)dstnode;
+
+	   distance = tmnode->propdelay(rmnode) * 300000000 ;
+	}
 
 	double energy = -1;
 	double initenergy = -1;

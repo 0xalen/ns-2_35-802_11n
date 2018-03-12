@@ -129,6 +129,7 @@ void SackRHTcpAgent::recv(Packet *pkt, Handler*)
 	old_retran_data = retran_data_;
 	retran_data_ -= scb_.UpdateScoreBoard (last_ack_, tcph, rh_id_);
 
+	old_numdupacks = num_dupacks_;
        	if (!sackpresent && (old_ack == last_ack_)) {
 		num_dupacks_++;
 		if ((rh_est_hole_state_ == RHEH_COUNTING) && 

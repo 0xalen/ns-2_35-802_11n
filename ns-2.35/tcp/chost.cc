@@ -319,6 +319,7 @@ CorresHost::rmv_old_segs(Packet *pkt, IntTcpAgent *sender, int amt_data_acked)
 {
 	Islist_iter<Segment> seg_iter(seglist_);
 	Segment *cur, *prev=0;
+	int found = 0;
 	int done = 0;
 	int new_data_acked = 0;
 	int partialack = 0;
@@ -341,6 +342,10 @@ CorresHost::rmv_old_segs(Packet *pkt, IntTcpAgent *sender, int amt_data_acked)
 		} 
 		/* ack for same connection */
 		else if (sender == cur->sender_) {
+			/* found packet acked */
+			if (tcph->seqno() == cur->seqno_ && 
+			    tcph->ts_echo() == cur->ts_) 
+				found = 1;
 			/* higher ack => clean up acked packets */
 			if (tcph->seqno() >= cur->seqno_) {
 				adjust_ownd(cur->size_);
